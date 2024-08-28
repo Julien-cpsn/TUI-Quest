@@ -72,6 +72,7 @@ base64 = "=0.22.1"
 regex = "=1.10.6"
 chrono = { version = "=0.4.38", default-features = false, features = ["now"] }
 uuid = { version = "=1.10.0", features = ["v4", "v7"] }
+jsonwebtoken = "9.3.0"
 
 # Tracing
 tracing = { version = "=0.1.40", features = ["async-await"] }

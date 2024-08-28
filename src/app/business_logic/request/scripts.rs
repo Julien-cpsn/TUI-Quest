@@ -1,4 +1,4 @@
-use boa_engine::{Context, Source};
+use boa_engine::{Context, JsString, NativeFunction, Source};
 use indexmap::IndexMap;
 use tracing::{info, trace};
 
@@ -6,6 +6,8 @@ use crate::app::app::App;
 use crate::models::request::Request;
 use crate::models::response::RequestResponse;
 use crate::models::scripts::ScriptType;
+
+use super::script_support::generate_signed_jwt;
 
 impl App<'_> {
     pub fn modify_request_script(&mut self, collection_index: usize, request_index: usize, script_type: &ScriptType, script: Option<String>) -> anyhow::Result<()> {
@@ -48,6 +50,7 @@ function pretty_print(data) {
 pub fn execute_pre_request_script(user_script: &String, request: &Request, env: Option<IndexMap<String, String>>) -> (Option<Request>, Option<IndexMap<String, String>>, String) {
     // Instantiate the execution context
     let mut context = Context::default();
+    context.register_global_callable(JsString::from("generate_signed_jwt"), 0, NativeFunction::from_fn_ptr(generate_signed_jwt)).unwrap();
 
     let request_json = serde_json::to_string(request).unwrap();
     let env_json = match &env {
@@ -93,6 +96,7 @@ pub fn execute_pre_request_script(user_script: &String, request: &Request, env: 
 pub fn execute_post_request_script(user_script: &String, response: &RequestResponse, env: Option<IndexMap<String, String>>) -> (Option<RequestResponse>, Option<IndexMap<String, String>>, String) {
     // Instantiate the execution context
     let mut context = Context::default();
+    context.register_global_callable(JsString::from("generate_signed_jwt"), 0, NativeFunction::from_fn_ptr(generate_signed_jwt)).unwrap();
 
     let response_json = serde_json::to_string(response).unwrap();
     let env_json = match &env {
